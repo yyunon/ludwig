@@ -70,6 +70,22 @@ BACKFILL = 'backfill'
 
 MEASURE = 'measure'
 PREDICTION = 'prediction'
+TRAINING = 'training'
+VALIDATION = 'validation'
+TEST = 'test'
+FULL = 'full'
+
+IN_MEMORY = 'in_memory'
+FROM_FILE = 'from_file'
+
+UNPREPROCESSED = 'unpreprocessed'
+PREPROCESSED = 'preprocessed'
+
+AUTO = 'auto'
+CSV = 'csv'
+DATAFRAME = 'dataframe'
+HDF5 = 'hdf5'
+PARQUET = 'parquet'
 
 SUM = 'sum'
 APPEND = 'append'

@@ -19,21 +19,15 @@ import numpy as np
 
 
 class Dataset:
-    def __init__(self, dataset, input_features, output_features, data_hdf5_fp):
+    def __init__(self, dataset, features, data_hdf5_fp):
         self.dataset = dataset
 
         self.size = min(map(len, self.dataset.values()))
 
-        self.input_features = {}
-        for feature in input_features:
+        self.features = {}
+        for feature in features:
             feature_name = feature['name']
-            self.input_features[feature_name] = feature
-        self.output_features = {}
-        for feature in output_features:
-            feature_name = feature['name']
-            self.output_features[feature_name] = feature
-        self.features = self.input_features.copy()
-        self.features.update(self.output_features)
+            self.features[feature_name] = feature
         self.data_hdf5_fp = data_hdf5_fp
 
     def get(self, feature_name, idx=None):

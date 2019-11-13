@@ -41,7 +41,7 @@ import yaml
 
 from ludwig.data.dataset import Dataset
 from ludwig.data.postprocessing import postprocess_df, postprocess
-from ludwig.data.preprocessing import build_data
+from ludwig.data.preprocessing import build_data, preprocess_for_prediction
 from ludwig.data.preprocessing import build_dataset
 from ludwig.data.preprocessing import load_metadata
 from ludwig.data.preprocessing import replace_text_feature_level
@@ -59,6 +59,7 @@ from ludwig.utils.data_utils import save_json
 from ludwig.utils.defaults import default_random_seed
 from ludwig.utils.defaults import merge_with_defaults
 from ludwig.utils.print_utils import logging_level_registry
+from ludwig.constants import FULL, DATAFRAME, IN_MEMORY
 
 logger = logging.getLogger(__name__)
 
@@ -678,23 +679,21 @@ class LudwigModel:
             ]
 
         logger.debug('Preprocessing {} datapoints'.format(len(data_df)))
-        features_to_load = (self.model_definition['input_features'] +
-                            self.model_definition['output_features'])
+        features = (self.model_definition['input_features'] +
+                    self.model_definition['output_features'])
         preprocessed_data = build_data(
             data_df,
-            features_to_load,
+            features,
             self.train_set_metadata,
             self.model_definition['preprocessing']
         )
         replace_text_feature_level(
-            self.model_definition['input_features'] +
-            self.model_definition['output_features'],
+            features,
             [preprocessed_data]
         )
         dataset = Dataset(
             preprocessed_data,
-            self.model_definition['input_features'],
-            self.model_definition['output_features'],
+            features,
             None
         )
 
@@ -726,6 +725,7 @@ class LudwigModel:
                 self.train_set_metadata is None):
             raise ValueError('Model has not been trained or loaded')
 
+        # todo get rid of this as now preprocess_for_prediction can handle it
         if data_df is None:
             data_df = self._read_data(data_csv, data_dict)
 
@@ -734,28 +734,22 @@ class LudwigModel:
         # this way I'm copying the list. If you don't do it, you are actually
         # modifying the input feature list when you add output features,
         # which you definitely don't want to do
-        features_to_load = self.model_definition['input_features'][:]
+        features = self.model_definition['input_features'][:]
         if evaluate_performance:
             output_features = self.model_definition['output_features']
         else:
             output_features = []
-        features_to_load += output_features
+        features += output_features
 
-        preprocessed_data = build_data(
-            data_df,
-            features_to_load,
-            self.train_set_metadata,
-            self.model_definition['preprocessing']
-        )
-        replace_text_feature_level(
-            features_to_load,
-            [preprocessed_data]
-        )
-        dataset = Dataset(
-            preprocessed_data,
-            self.model_definition['input_features'],
-            output_features,
-            None
+        dataset, _ = preprocess_for_prediction(
+            features,
+            split=FULL,
+            data=data_df,
+            train_set_metadata=self.train_set_metadata,
+            data_type=DATAFRAME,
+            load_strategy=IN_MEMORY,
+            already_preprocessed=False,
+            preprocessing_params=self.model_definition['preprocessing']
         )
 
         logger.debug('Predicting')

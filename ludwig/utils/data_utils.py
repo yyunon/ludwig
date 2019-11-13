@@ -296,7 +296,7 @@ def class_counts(dataset, labels_field):
     return np.bincount(dataset[labels_field].flatten()).tolist()
 
 
-def text_feature_data_field(text_feature):
+def get_text_feature_name(text_feature):
     return text_feature['name'] + '_' + text_feature['level']
 
 

@@ -26,7 +26,8 @@ import sys
 import numpy as np
 
 from ludwig.contrib import contrib_command
-from ludwig.data.preprocessing import preprocess_for_prediction
+from ludwig.data.preprocessing import preprocess_for_prediction, \
+    load_and_preprocess_for_prediction
 from ludwig.globals import LUDWIG_VERSION
 from ludwig.globals import TRAIN_SET_METADATA_FILE_NAME
 from ludwig.models.model import load_model_and_definition
@@ -82,18 +83,18 @@ def collect_activations(
     logger.info('Output path: {}'.format(experiment_dir_name))
     logger.info('\n')
 
-    train_set_metadata_fp = os.path.join(
+    train_set_metadata_json_fp = os.path.join(
         model_path,
         TRAIN_SET_METADATA_FILE_NAME
     )
 
     # preprocessing
-    dataset, train_set_metadata = preprocess_for_prediction(
+    dataset, train_set_metadata = load_and_preprocess_for_prediction(
         model_path,
         split,
         data_csv,
         data_hdf5,
-        train_set_metadata_fp
+        train_set_metadata_json_fp
     )
 
     model, model_definition = load_model_and_definition(model_path)

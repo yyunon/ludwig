@@ -27,7 +27,7 @@ from pprint import pformat
 
 from ludwig.contrib import contrib_command
 from ludwig.data.postprocessing import postprocess
-from ludwig.data.preprocessing import preprocess_for_prediction
+from ludwig.data.preprocessing import load_and_preprocess_for_prediction
 from ludwig.features.feature_registries import output_type_registry
 from ludwig.globals import LUDWIG_VERSION, is_on_master, set_on_master
 from ludwig.globals import TRAIN_SET_METADATA_FILE_NAME
@@ -39,7 +39,6 @@ from ludwig.utils.misc import get_from_registry, \
 from ludwig.utils.print_utils import logging_level_registry, repr_ordered_dict
 from ludwig.utils.print_utils import print_boxed
 from ludwig.utils.print_utils import print_ludwig
-
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +72,7 @@ def full_predict(
     )
 
     # preprocessing
-    dataset, train_set_metadata = preprocess_for_prediction(
+    dataset, train_set_metadata = load_and_preprocess_for_prediction(
         model_path,
         split,
         data_csv,
@@ -103,7 +102,8 @@ def full_predict(
 
     if is_on_master():
         # setup directories and file names
-        experiment_dir_name = find_non_existing_dir_by_adding_suffix(output_directory)
+        experiment_dir_name = find_non_existing_dir_by_adding_suffix(
+            output_directory)
 
         # if we are skipping all saving,
         # there is no need to create a directory that will remain empty
@@ -113,7 +113,7 @@ def full_predict(
                 skip_save_test_statistics
         )
         if should_create_exp_dir:
-                os.makedirs(experiment_dir_name)
+            os.makedirs(experiment_dir_name)
 
         # postprocess
         postprocessed_output = postprocess(
@@ -326,7 +326,6 @@ def cli(sys_argv):
         help='skips saving test statistics JSON file',
         action='store_true', default=False
     )
-
 
     # ------------------
     # Generic parameters
