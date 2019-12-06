@@ -658,7 +658,6 @@ def _preprocess_csv_for_training(
             data,
             data['split']
         )
-        import pdb; pdb.set_trace()
         if not skip_save_processed_input:
             logger.info('Writing dataset')
             data_train_hdf5_fp = replace_file_extension(data_train_csv, 'hdf5')
@@ -671,6 +670,7 @@ def _preprocess_csv_for_training(
             data_utils.save_parquet(
                 data_train_hdf5_fp,
                 training_set,
+                features,
                 train_set_metadata
             )
             train_set_metadata[DATA_TRAIN_HDF5_FP] = data_train_hdf5_fp
@@ -687,6 +687,7 @@ def _preprocess_csv_for_training(
                 data_utils.save_parquet(
                     data_validation_hdf5_fp,
                     validation_set,
+                    features,
                     train_set_metadata
                 )
                 train_set_metadata[DATA_TRAIN_HDF5_FP] = data_train_hdf5_fp
@@ -702,6 +703,7 @@ def _preprocess_csv_for_training(
                 data_utils.save_parquet(
                     data_test_hdf5_fp,
                     test_set,
+                    features,
                     train_set_metadata
                 )
                 train_set_metadata[DATA_TRAIN_HDF5_FP] = data_train_hdf5_fp

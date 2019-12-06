@@ -555,7 +555,8 @@ class Model:
                 progress_bar.close()
 
             progress_tracker.epoch += 1
-            batcher.reset()  # todo this may be useless, doublecheck
+            # TODO this may be useless, doublecheck
+            batcher.reset()
 
             # ================ Eval ================
             # init tables

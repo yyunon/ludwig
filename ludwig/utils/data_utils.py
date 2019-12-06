@@ -125,11 +125,12 @@ def save_hdf5(data_fp, data, metadata={}):
                         dataset.attrs['in_memory'] = False
 
 
-def parquet_generate_petastorm_schema(data):
+def parquet_generate_petastorm_schema(one_row, features):
     col_schemas = []
 
-    for key in data:
-        first_element = data[key][0]
+    for f in features:
+        key = f['name']
+        first_element = one_row[key]
         ndim = first_element.ndim
         if ndim == 0:
             # scalar type
@@ -162,19 +163,29 @@ def parquet_generate_petastorm_schema(data):
     return Unischema('ParquetSchema', col_schemas)
 
 
-def save_parquet(data_fp, data, metadata={}):
+def save_parquet(data_fp, data, features, metadata={}):
 
     def row_generator(i):
         out = {}
+        """
         for key in data:
             out[key] = data[key][i]
+        """
+
+        for f in features:
+            if f['type'] == 'text':
+                col_name = text_feature_data_field(f)
+            else:
+                col_name = f['name']
+
+            out[f['name']] = data[col_name][i]
+
         return out
 
-    import pdb; pdb.set_trace()
     spark = SparkSession.builder.config(
         'spark.driver.memory', '2g').master('local[2]').getOrCreate()
     sc = spark.sparkContext
-    schema = parquet_generate_petastorm_schema(data)
+    schema = parquet_generate_petastorm_schema(row_generator(0), features)
     output_url = 'file://{}'.format(data_fp)
     num_rows = len(data[list(data.keys())[0]])
 

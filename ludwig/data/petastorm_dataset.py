@@ -22,27 +22,19 @@ from petastorm.tf_utils import make_petastorm_dataset
 class PetaStormDataset:
     def __init__(self, input_features, output_features, data_parquet_fp):
         self.reader = make_reader(data_parquet_fp)
-        # self.dataset = make_petastorm_dataset(self.reader)
         self.size = self.get_size()
         self.data_parquet_fp = data_parquet_fp
 
         self.input_features = {}
         for feature in input_features:
 
-            if feature['type'] == 'text':
-                feature_name = text_feature_data_field(feature)
-            else:
-                feature_name = feature['name']
-
+            feature_name = feature['name']
             self.input_features[feature_name] = feature
 
         self.output_features = {}
         for feature in output_features:
-            if feature['type'] == 'text':
-                feature_name = text_feature_data_field(feature)
-            else:
-                feature_name = feature['name']
 
+            feature_name = feature['name']
             self.output_features[feature_name] = feature
 
         self.features = self.input_features.copy()
@@ -52,7 +44,6 @@ class PetaStormDataset:
         return self.reader.next()
 
     def next_batch(self, batch_size):
-        # return self.dataset.batch(batch_size, drop_remainder=drop_last)
         return [self.reader.next() for _ in range(batch_size)]
 
     def get_size(self):
