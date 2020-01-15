@@ -57,6 +57,7 @@ from ludwig.models.modules.optimization_modules import optimize
 from ludwig.models.outputs import build_outputs
 from ludwig.utils import time_utils
 from ludwig.utils.batcher import Batcher
+from ludwig.utils.batcher import PetaStormBatcher
 from ludwig.utils.batcher import BucketedBatcher
 from ludwig.utils.batcher import DistributedBatcher
 from ludwig.utils.data_utils import load_json, save_json
@@ -554,7 +555,8 @@ class Model:
                 progress_bar.close()
 
             progress_tracker.epoch += 1
-            batcher.reset()  # todo this may be useless, doublecheck
+            # TODO this may be useless, doublecheck
+            batcher.reset()
 
             # ================ Eval ================
             # init tables
@@ -1471,6 +1473,13 @@ class Model:
                 dataset,
                 self.horovod.rank(),
                 self.horovod,
+                batch_size,
+                should_shuffle=should_shuffle,
+                ignore_last=ignore_last
+            )
+        elif bucketing_field == 'petastorm':
+             batcher = PetaStormBatcher(
+                dataset,
                 batch_size,
                 should_shuffle=should_shuffle,
                 ignore_last=ignore_last

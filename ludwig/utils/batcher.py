@@ -70,6 +70,61 @@ class Batcher(object):
         self.step = 0
 
 
+class PetaStormBatcher(object):
+    def __init__(self, dataset, batch_size=128, should_shuffle=True, ignore_last=False):
+        # store our dataset as well
+        self.dataset = dataset
+        # TODO ignore last is True by default for this at the moment
+        self.ignore_last = ignore_last
+        # TODO this is ignored at the moment
+        self.should_shuffle = True
+
+        self.batch_size = batch_size
+        self.steps_per_epoch = self.get_num_batches()
+        self.index = 0
+        self.step = 0
+        self.epoch = 0
+
+    def reset(self):
+        # TODO adding this because model.py is calling reset
+        # However petastorm doesn't allow reset in the middle of iteration
+        pass
+
+    def _reset(self):
+        self.dataset.reset()
+        self.step = 0
+        self.index = 0
+
+    def get_num_batches(self):
+        # TODO petastorm doesn't seem to have a way to know the amount of data
+        # so we need to do a pass on the data to estimate the number of batches.
+        # This is required for the optimizers
+        return self.dataset.size // self.batch_size
+
+    def last_batch(self):
+        return self.step >= self.steps_per_epoch
+
+    def next_batch(self):
+        # TODO last batch is being ignored, if it's smaller than the batch_size
+        try:
+            petastorm_batch = self.dataset.next_batch(self.batch_size)
+        except StopIteration:
+            self.epoch += 1
+            self._reset()
+            petastorm_batch = self.dataset.next_batch(self.batch_size)
+
+        sub_batch = {}
+        for features_name in self.dataset.features:
+            sub_batch[features_name] = [
+                row.__getattribute__(features_name) for row in petastorm_batch
+            ]
+
+        self.index += self.batch_size
+        self.step += 1
+
+        return sub_batch
+
+
 class BucketedBatcher(object):
     def __init__(self, dataset, bucketing_field, batch_size=128, buckets=10,
                  should_shuffle=True, ignore_last=False,
