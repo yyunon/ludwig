@@ -31,6 +31,7 @@ from ludwig.train import get_experiment_dir_name
 from ludwig.train import get_file_names
 from ludwig.train import update_model_definition_with_metadata
 from ludwig.train import train
+from ludwig.data.preprocessing import preprocess_for_training
 from ludwig.data.preprocessing import load_metadata
 from ludwig.globals import is_on_master
 from ludwig.globals import TRAIN_SET_METADATA_FILE_NAME
@@ -50,6 +51,50 @@ def _parquet_full_path(filepath):
         )
 
     return 'file://{}'.format(filepath)
+
+
+def create_preprocessed_parquet(
+        model_definition,
+        model_definition_file=None,
+        data_csv=None,
+        data_train_csv=None,
+        data_validation_csv=None,
+        data_test_csv=None,
+        train_set_metadata_json=None,
+        random_seed=42,
+):
+    # merge with default model definition to set defaults
+    if model_definition_file is not None:
+        with open(model_definition_file, 'r') as def_file:
+            model_definition = merge_with_defaults(yaml.safe_load(def_file))
+    else:
+        model_definition = merge_with_defaults(model_definition)
+
+    # preprocess
+    import pdb; pdb.set_trace()
+    preprocessed_data = preprocess_for_training(
+        model_definition,
+        data_csv=data_csv,
+        data_train_csv=data_train_csv,
+        data_validation_csv=data_validation_csv,
+        data_test_csv=data_test_csv,
+        train_set_metadata_json=train_set_metadata_json,
+        skip_save_processed_input=False,
+        preprocessing_params=model_definition['preprocessing'],
+        random_seed=random_seed
+    )
+
+    (training_set,
+     validation_set,
+     test_set,
+     train_set_metadata) = preprocessed_data
+
+    if is_on_master():
+        logger.info('Training set: {0}'.format(training_set.size))
+        if validation_set is not None:
+            logger.info('Validation set: {0}'.format(validation_set.size))
+        if test_set is not None:
+            logger.info('Test set: {0}'.format(test_set.size))
 
 
 def train_parquet(
