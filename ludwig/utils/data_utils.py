@@ -173,7 +173,7 @@ def parquet_generate_petastorm_schema(one_row, features):
     return Unischema('ParquetSchema', col_schemas)
 
 
-def save_parquet(data_fp, data, features, metadata={}):
+def save_parquet(data_fp, data, features):
 
     def row_generator(i):
         out = {}

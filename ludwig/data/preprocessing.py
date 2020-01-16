@@ -576,6 +576,33 @@ def preprocess_for_training_by_type(
     )
 
 
+def save_processed_data(data, orig_path, save_type, metadata=None, features=None):
+    destination_path = replace_file_extension(orig_path, save_type)
+
+    if save_type == 'hdf5':
+        if metadata is None:
+            raise ValueError('Need train_set_metadata to save the data as hdf5')
+
+        data_utils.save_hdf5(destination_path, data, metadata)
+
+    elif save_type == 'parquet':
+        if not os.path.isabs(destination_path):
+            destination_path = os.path.join(os.getcwd(), destination_path)
+
+        if features is None:
+            raise ValueError('Cant save parquet data without list of features')
+        data_utils.save_parquet(destination_path, data, features)
+
+    elif save_type == 'json':
+        data_utils.save_json(destination_path, data)
+    else:
+        raise ValueError('Unsupported save type: {} for processed data'.format(
+            save_type)
+        )
+
+    return destination_path
+
+
 def _preprocess_csv_for_training(
         features,
         data_csv=None,
@@ -622,23 +649,14 @@ def _preprocess_csv_for_training(
             random_seed=random_seed
         )
         if not skip_save_processed_input:
+
             logger.info('Writing dataset')
-            data_hdf5_fp = replace_file_extension(data_csv, save_type)
-
-            if save_type == 'hdf5':
-                data_utils.save_hdf5(data_hdf5_fp, data, train_set_metadata)
-            elif save_type == 'parquet':
-                data_utils.save_parquet(data_hdf5_fp, data, features)
-
-            train_set_metadata[DATA_TRAIN_HDF5_FP] = data_hdf5_fp
+            train_set_metadata[DATA_TRAIN_HDF5_FP] = save_processed_data(
+                data, data_csv, save_type, train_set_metadata, features
+            )
             logger.info('Writing train set metadata with vocabulary')
 
-            train_set_metadata_json_fp = replace_file_extension(
-                data_csv,
-                'json'
-            )
-            data_utils.save_json(
-                train_set_metadata_json_fp, train_set_metadata)
+            save_processed_data(train_set_metadata, data_csv, 'json')
 
         training_set, test_set, validation_set = split_dataset_tvt(
             data,
@@ -672,66 +690,25 @@ def _preprocess_csv_for_training(
             data['split']
         )
         if not skip_save_processed_input:
-            # TODO create a helper method to write these datasets to disk
-            # This is repetitive
             logger.info('Writing dataset')
-            data_train_hdf5_fp = replace_file_extension(data_train_csv, save_type)
+            train_set_metadata[DATA_TRAIN_HDF5_FP] = save_processed_data(
+                training_set, data_train_csv, save_type, train_set_metadata, features
+            )
 
-            if save_type == 'hdf5':
-                data_utils.save_hdf5(data_train_hdf5_fp, training_set, train_set_metadata)
-            elif save_type == 'parquet':
-
-                if not os.path.isabs(data_train_hdf5_fp):
-                    data_train_hdf5_fp = os.path.join(
-                        os.getcwd(), data_train_hdf5_fp
-                    )
-
-                data_utils.save_parquet(
-                    data_train_hdf5_fp,
-                    training_set,
-                    features,
-                )
-
-            train_set_metadata[DATA_TRAIN_HDF5_FP] = data_train_hdf5_fp
             if validation_set is not None:
+                save_processed_data(
+                    validation_set, data_validation_csv, save_type, train_set_metadata, features
+                )
                 data_validation_hdf5_fp = replace_file_extension(data_validation_csv, save_type)
 
-                if save_type == 'hdf5':
-                    data_utils.save_hdf5(data_validation_hdf5_fp, validation_set, train_set_metadata)
-                elif save_type == 'parquet':
-
-                    if not os.path.isabs(data_validation_hdf5_fp):
-                        data_validation_hdf5_fp = os.path.join(
-                            os.getcwd(), data_validation_hdf5_fp
-                        )
-
-                    data_utils.save_parquet(
-                        data_validation_hdf5_fp,
-                        validation_set,
-                        features,
-                    )
-
             if test_set is not None:
-                data_test_hdf5_fp = replace_file_extension(data_test_csv, save_type)
-                if save_type == 'hdf5':
-                    data_utils.save_hdf5(data_test_hdf5_fp, test_set, train_set_metadata)
-                elif save_type == 'parquet':
-                    if not os.path.isabs(data_test_hdf5_fp):
-                        data_test_hdf5_fp = os.path.join(
-                            os.getcwd(), data_test_hdf5_fp
-                        )
-                    data_utils.save_parquet(
-                        data_test_hdf5_fp,
-                        test_set,
-                        features
-                    )
+                save_processed_data(
+                    test_set, data_test_csv, save_type, train_set_metadata, features
+                )
 
             logger.info('Writing train set metadata with vocabulary')
-            train_set_metadata_json_fp = replace_file_extension(data_train_csv,
-                                                                'json')
-            data_utils.save_json(
-                train_set_metadata_json_fp,
-                train_set_metadata,
+            save_processed_data(
+                train_set_metadata, data_train_csv, 'json'
             )
 
     return training_set, test_set, validation_set, train_set_metadata
