@@ -80,6 +80,7 @@ def create_preprocessed_parquet(
         data_test_csv=data_test_csv,
         train_set_metadata_json=train_set_metadata_json,
         skip_save_processed_input=False,
+        save_type='parquet',
         preprocessing_params=model_definition['preprocessing'],
         random_seed=random_seed
     )

@@ -306,6 +306,7 @@ def preprocess_for_training(
         preprocessing_params=default_preprocessing_parameters,
         random_seed=default_random_seed
 ):
+    import pdb; pdb.set_trace()
     # Sanity Check to make sure some data source is provided
     data_sources_provided = [data_df, data_train_df, data_csv, data_train_csv,
                              data_hdf5, data_train_hdf5]
@@ -323,6 +324,7 @@ def preprocess_for_training(
             test_df=data_test_df,
             train_set_metadata_json=train_set_metadata_json,
             skip_save_processed_input=skip_save_processed_input,
+            save_type=save_type,
             preprocessing_params=preprocessing_params,
             random_seed=random_seed
         )
@@ -336,6 +338,7 @@ def preprocess_for_training(
             test_fp=data_test_csv,
             train_set_metadata_json=train_set_metadata_json,
             skip_save_processed_input=skip_save_processed_input,
+            save_type=save_type,
             preprocessing_params=preprocessing_params,
             random_seed=random_seed
         )
@@ -349,6 +352,7 @@ def preprocess_for_training(
             test_fp=data_test_hdf5,
             train_set_metadata_json=train_set_metadata_json,
             skip_save_processed_input=skip_save_processed_input,
+            save_type=save_type,
             preprocessing_params=preprocessing_params,
             random_seed=random_seed
         )
@@ -483,7 +487,7 @@ def preprocess_for_training_by_type(
                     data_test_csv=None,
                     train_set_metadata_json=train_set_metadata_json,
                     skip_save_processed_input=skip_save_processed_input,
-                    save_type='hdf5',
+                    save_type=save_type,
                     preprocessing_params=preprocessing_params,
                     random_seed=random_seed
                 )
@@ -527,7 +531,7 @@ def preprocess_for_training_by_type(
                     data_test_csv=test_fp,
                     train_set_metadata_json=train_set_metadata_json,
                     skip_save_processed_input=skip_save_processed_input,
-                    save_type='hdf5',
+                    save_type=save_type,
                     preprocessing_params=preprocessing_params,
                     random_seed=random_seed
                 )
