@@ -318,7 +318,6 @@ def full_train(
             )
 
     # run the experiment
-    import pdb; pdb.set_trace()
     model, result = train(
         training_set=training_set,
         validation_set=validation_set,

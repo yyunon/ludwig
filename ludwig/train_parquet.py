@@ -71,7 +71,6 @@ def create_preprocessed_parquet(
         model_definition = merge_with_defaults(model_definition)
 
     # preprocess
-    import pdb; pdb.set_trace()
     preprocessed_data = preprocess_for_training(
         model_definition,
         data_csv=data_csv,

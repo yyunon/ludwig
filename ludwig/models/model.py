@@ -1512,7 +1512,6 @@ class Model:
                 trim_side=trim_side
             )
         else:
-            import pdb; pdb.set_trace()
             if isinstance(dataset, PetaStormDataset):
                 batcher = PetaStormBatcher(
                     dataset,
