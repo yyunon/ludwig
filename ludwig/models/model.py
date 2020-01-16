@@ -55,6 +55,7 @@ from ludwig.models.modules.measure_modules import get_improved_fun
 from ludwig.models.modules.measure_modules import get_initial_validation_value
 from ludwig.models.modules.optimization_modules import optimize
 from ludwig.models.outputs import build_outputs
+from ludwig.data.petastorm_dataset import PetaStormDataset
 from ludwig.utils import time_utils
 from ludwig.utils.batcher import Batcher
 from ludwig.utils.batcher import PetaStormBatcher
@@ -1477,13 +1478,7 @@ class Model:
                 should_shuffle=should_shuffle,
                 ignore_last=ignore_last
             )
-        elif bucketing_field == 'petastorm':
-             batcher = PetaStormBatcher(
-                dataset,
-                batch_size,
-                should_shuffle=should_shuffle,
-                ignore_last=ignore_last
-            )
+
         elif bucketing_field is not None:
             input_features = self.hyperparameters['input_features']
             bucketing_feature = [
@@ -1517,12 +1512,21 @@ class Model:
                 trim_side=trim_side
             )
         else:
-            batcher = Batcher(
-                dataset,
-                batch_size,
-                should_shuffle=should_shuffle,
-                ignore_last=ignore_last
-            )
+            import pdb; pdb.set_trace()
+            if isinstance(dataset, PetaStormDataset):
+                batcher = PetaStormBatcher(
+                    dataset,
+                    batch_size,
+                    should_shuffle=should_shuffle,
+                    ignore_last=ignore_last
+                )
+            else:
+                batcher = Batcher(
+                    dataset,
+                    batch_size,
+                    should_shuffle=should_shuffle,
+                    ignore_last=ignore_last
+                )
         return batcher
 
     def resume_session(

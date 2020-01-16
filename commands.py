@@ -13,7 +13,6 @@ output_features:
         type: category
 training:
     epochs: 2
-    bucketing_field: petastorm
     
     
 data:
