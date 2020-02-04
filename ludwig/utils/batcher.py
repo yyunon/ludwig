@@ -79,6 +79,9 @@ class PetaStormBatcher(object):
         # TODO this is ignored at the moment
         self.should_shuffle = True
 
+        self.cur_batch = {}
+        self.cur_batch_size = 0
+
         self.batch_size = batch_size
         self.steps_per_epoch = self.get_num_batches()
         self.index = 0
@@ -104,25 +107,38 @@ class PetaStormBatcher(object):
     def last_batch(self):
         return self.step >= self.steps_per_epoch
 
-    def next_batch(self):
-        # TODO last batch is being ignored, if it's smaller than the batch_size
-        try:
-            petastorm_batch = self.dataset.next_batch(self.batch_size)
-        except StopIteration:
-            self.epoch += 1
-            self._reset()
-            petastorm_batch = self.dataset.next_batch(self.batch_size)
+    def append_batch(self, batch):
+        # batch is an instance of collections.ParquetSchema_view
+        # (subclass of tuple)
+        for col in batch._fields:
+            self.cur_batch[col] += list(batch.__getattribute__(col))
 
-        sub_batch = {}
-        for features_name in self.dataset.features:
-            sub_batch[features_name] = [
-                row.__getattribute__(features_name) for row in petastorm_batch
-            ]
+        self.cur_batch_size = len(self.cur_batch[col])
+
+    def next_batch(self):
+        if self.cur_batch_size < self.batch_size:
+            while self.cur_batch_size < self.batch_size:
+                # TODO last batch is being ignored, if it's smaller
+                #  than the batch_size
+                try:
+                    next_batch = self.dataset.next()
+                except StopIteration:
+                    self.epoch += 1
+                    self._reset()
+                    next_batch = self.dataset.next()
+
+                self.append_batch(next_batch)
+
+        batch = {}
+        for col in self.cur_batch:
+            batch[col] = self.cur_batch[:self.batch_size]
+            self.cur_batch[col] = self.cur_batch[self.batch_size:]
+        self.cur_batch_size = len(self.cur_batch[col])
 
         self.index += self.batch_size
         self.step += 1
 
-        return sub_batch
+        return batch
 
 
 class BucketedBatcher(object):

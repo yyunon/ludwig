@@ -15,13 +15,12 @@
 # limitations under the License.
 # ==============================================================================
 from ludwig.utils.data_utils import text_feature_data_field
-from petastorm import make_reader
-from petastorm.tf_utils import make_petastorm_dataset
+from petastorm import make_batch_reader
 
 
 class PetaStormDataset:
     def __init__(self, input_features, output_features, data_parquet_fp):
-        self.reader = make_reader(data_parquet_fp)
+        self.reader = make_batch_reader(data_parquet_fp, num_epochs=None)
         self.size = self.get_size()
         self.data_parquet_fp = data_parquet_fp
 
@@ -43,15 +42,12 @@ class PetaStormDataset:
     def next(self):
         return self.reader.next()
 
-    def next_batch(self, batch_size):
-        return [self.reader.next() for _ in range(batch_size)]
-
     def get_size(self):
         num_rows = 0
         while True:
             try:
-                _ = self.reader.next()
-                num_rows += 1
+                batch = self.reader.next()
+                num_rows += len(batch[0])
             except StopIteration:
                 return num_rows
 
