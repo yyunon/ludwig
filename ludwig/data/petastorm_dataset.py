@@ -20,7 +20,7 @@ from petastorm import make_batch_reader
 
 class PetaStormDataset:
     def __init__(self, input_features, output_features, data_parquet_fp):
-        self.reader = make_batch_reader(data_parquet_fp, num_epochs=None)
+        self.reader = make_batch_reader(data_parquet_fp, hdfs_driver='libhdfs')
         self.size = self.get_size()
         self.data_parquet_fp = data_parquet_fp
 

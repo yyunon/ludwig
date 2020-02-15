@@ -116,6 +116,7 @@ class PetaStormBatcher(object):
         self.cur_batch_size = len(self.cur_batch[col])
 
     def next_batch(self):
+        import pdb; pdb.set_trace()
         if self.cur_batch_size < self.batch_size:
             while self.cur_batch_size < self.batch_size:
                 # TODO last batch is being ignored, if it's smaller

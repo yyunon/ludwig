@@ -35,6 +35,8 @@ from petastorm.unischema import dict_to_spark_row
 from petastorm.codecs import *
 
 from petastorm.etl.dataset_metadata import materialize_dataset
+from pyspark.sql import Row
+from collections import OrderedDict
 
 logger = logging.getLogger(__name__)
 
@@ -158,13 +160,13 @@ def parquet_generate_petastorm_schema(one_row, features):
                 )
 
             col_schemas.append(UnischemaField(
-                key, first_element.dtype.type, first_element.shape, codec
+                key, first_element.dtype.type, first_element.shape, codec, nullable=True
             ))
 
         elif ndim == 1:
             # array type
             col_schemas.append(UnischemaField(
-                key, first_element.dtype.type, first_element.shape, NdarrayCodec()
+                key, first_element.dtype.type, first_element.shape, NdarrayCodec(), nullable=True
             ))
         else:
             raise ValueError('Data types with >1 dimensions are not supported '
@@ -174,6 +176,7 @@ def parquet_generate_petastorm_schema(one_row, features):
 
 
 def save_parquet(data_fp, data, features):
+    import pdb; pdb.set_trace()
 
     def row_generator(i):
         out = {}
@@ -192,6 +195,9 @@ def save_parquet(data_fp, data, features):
 
         return out
 
+    def convert_to_row(d):
+        return Row(**OrderedDict(sorted(d.items())))
+
     spark = SparkSession.builder.config(
         'spark.driver.memory', '2g').master('local[2]').getOrCreate()
     sc = spark.sparkContext
@@ -201,9 +207,10 @@ def save_parquet(data_fp, data, features):
 
     with materialize_dataset(spark, output_url, schema):
         rdd = sc.parallelize(range(num_rows)).map(row_generator).map(
-            lambda x: dict_to_spark_row(schema, x)
+            convert_to_row
         )
-        spark.createDataFrame(rdd, schema.as_spark_schema()).coalesce(10).write.mode('overwrite').parquet(output_url)
+        # spark.createDataFrame(rdd, schema.as_spark_schema()).coalesce(10).write.mode('overwrite').parquet(output_url)
+        spark.createDataFrame(rdd).coalesce(10).write.mode('overwrite').parquet(output_url)
 
 
 def load_object(object_fp):
