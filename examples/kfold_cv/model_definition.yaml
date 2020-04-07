@@ -1,0 +1,159 @@
+input_features:
+- name: X1
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X2
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X3
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X4
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X5
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X6
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X7
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X8
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X9
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X10
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X11
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X12
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X13
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X14
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X15
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X16
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X17
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X18
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X19
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X20
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X21
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X22
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X23
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X24
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X25
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X26
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X27
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X28
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X29
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+- name: X30
+  preprocessing:
+    missing_value_strategy: fill_with_mean
+    normalization: zscore
+  type: numerical
+output_features:
+- fc_size: 64
+  name: diagnosis
+  num_fc_layers: 2
+  type: binary
+training:
+  batch_size: 32
+  epochs: 20
